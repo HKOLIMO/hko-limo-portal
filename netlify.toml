@@ -3,6 +3,7 @@ Netlify Configuration File
 -->
 
 [build]
+  functions = "netlify/functions"
   command = "echo 'Build complete'"
   publish = "."
   
