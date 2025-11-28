@@ -1,0 +1,56 @@
+<!-- HKO LIMO - DEPLOYMENT CONFIGURATION
+Netlify Configuration File
+-->
+
+[build]
+  command = "echo 'Build complete'"
+  publish = "."
+  
+[build.environment]
+  NODE_VERSION = "18.0.0"
+
+[[redirects]]
+  from = "/*"
+  to = "/index-v2.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/login-v2.html"
+  status = 200
+
+[[redirects]]
+  from = "/booking"
+  to = "/index-v2.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/client"
+  to = "/client-dashboard-v2.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/admin"
+  to = "/admin-dashboard-v2.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/driver"
+  to = "/driver-dashboard-v2.html"
+  status = 200
+
+[context.production.environment]
+  STRIPE_PUBLISHABLE_KEY = "pk_live_51SCj43L50cwAWABS3juapMu0ZaYEB3gBzIJGNczBdTRhPwegeN105GwHkv85db4Q1yTgL3Vcg6fOu3B5BzJcEipN00fUF8HPxL"
+  FIREBASE_PROJECT_ID = "hkolimo-firebase"
+  
+[context.production]
+  command = "echo 'Production build'"
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"

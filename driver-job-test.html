@@ -1,0 +1,160 @@
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;Driver Job - HKO LIMO&lt;/title&gt;
+&lt;script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"&gt;
+&lt;script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.j
+&lt;style&gt;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; ba
+.container { max-width: 500px; margin: 0 auto; background: white; padding: 20px;
+.header { text-align: center; margin-bottom: 20px; }
+.test-badge { display: inline-block; background: #ff6b6b; color: white; padding:
+.job-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:
+.job-card h2 { font-size: 24px; margin-bottom: 10px; }
+.job-card p { opacity: 0.9; }
+.details { background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom:
+.detail-row { display: flex; justify-content: space-between; padding: 10px 0; bor
+.detail-row:last-child { border-bottom: none; }
+.label { color: #666; font-size: 13px; }
+.value { color: #333; font-weight: 600; }
+.passenger-info { background: #f0f7ff; padding: 15px; border-radius: 8px; margin-
+.passenger-info p { margin-bottom: 8px; }
+.status-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margi
+button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-w
+.btn-primary { background: #27ae60; color: white; }
+.btn-primary:hover { background: #229954; transform: translateY(-2px); }
+.btn-secondary { background: #3498db; color: white; }
+.btn-secondary:hover { background: #2980b9; transform: translateY(-2px); }
+.btn-cancel { background: #e74c3c; color: white; }
+.btn-cancel:hover { background: #c0392b; transform: translateY(-2px); }
+.btn-full { grid-column: 1 / -1; }
+.loading { text-align: center; padding: 40px; color: #999; }
+.error { background: #fadbd8; color: #c0392b; padding: 15px; border-radius: 8px;
+.success { background: #d5f4e6; color: #27ae60; padding: 15px; border-radius: 8px
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+<div>
+FILE 3: driver-job-test.html
+<div>
+<div>🧪 TEST JOB</div>
+<h1>🚗 HKO LIMO</h1>
+</div>
+<div>
+⏳ Loading job details...
+</div>
+<div>
+<div>
+<h2>New Job</h2>
+<p>Awaiting your action</p>
+</div>
+<div>
+<strong>👤 Passenger Details</strong>
+<p>Name: <strong>-</strong></p>
+<p>Phone: <strong>-</strong></p>
+<p>Email: <strong>-</strong></p>
+</div>
+<div>
+<div>
+<span>Booking ID</span>
+<span>-</span>
+</div>
+<div>
+<span>Pickup Location</span>
+<span>-</span>
+</div>
+<div>
+<span>Dropoff Location</span>
+<span>-</span>
+</div>
+<div>
+<span>Date &amp; Time</span>
+<span><span>-</span> <span>-</span></span>
+</div>
+<div>
+<span>Vehicle Type</span>
+<span>-</span>
+</div>
+<div>
+<span>Price</span>
+<span>$<span>0</span></span>
+</div>
+</div>
+<div>
+&lt;button class="btn-primary" onclick="updateStatus('en-route')"&gt;🚗 En
+&lt;button class="btn-secondary" onclick="updateStatus('arrived')"&gt;📍 A
+&lt;button class="btn-primary btn-full" onclick="updateStatus('completed'
+&lt;button class="btn-cancel btn-full" onclick="cancelJob()"&gt;❌ CANCEL
+</div>
+<div></div>
+</div>
+<div>
+❌ Job not found. Please check the link.
+</div>
+</div>
+&lt;script&gt;
+const firebaseConfig = {
+apiKey: "AIzaSyDy7z9suF_bpLI7pW4X9ofsZpfmEMc7Eeo",
+authDomain: "hkolimo-firebase.firebaseapp.com",
+projectId: "hkolimo-firebase",
+storageBucket: "hkolimo-firebase.firebasestorage.app",
+messagingSenderId: "1012271101382",
+appId: "1:1012271101382:web:fc922a415deadf277a2ec7"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const urlParams = new URLSearchParams(window.location.search);
+const bookingId = urlParams.get('bookingId');
+const isTestMode = urlParams.get('test') === 'true';
+async function loadJob() {
+try {
+if (!bookingId) throw new Error('No booking ID');
+const collection = isTestMode ? 'bookings-test' : 'bookings';
+const doc = await db.collection(collection).doc(bookingId).get();
+if (!doc.exists) throw new Error('Booking not found');
+const booking = doc.data();
+// Display details
+document.getElementById('bookingId').textContent = bookingId;
+document.getElementById('passengerName').textContent = booking.guestName;
+document.getElementById('passengerPhone').textContent = booking.guestPhon
+document.getElementById('passengerEmail').textContent = booking.guestEmai
+document.getElementById('pickupLocation').textContent = booking.pickupLoc
+document.getElementById('dropoffLocation').textContent = booking.dropoffL
+document.getElementById('pickupDate').textContent = booking.pickupDate;
+document.getElementById('pickupTime').textContent = booking.pickupTime;
+document.getElementById('vehicleType').textContent = booking.vehicleType.
+document.getElementById('totalPrice').textContent = booking.totalPrice;
+document.getElementById('jobTitle').textContent = `${booking.serviceType.
+document.getElementById('loadingSection').style.display = 'none';
+document.getElementById('jobSection').style.display = 'block';
+} catch (error) {
+document.getElementById('loadingSection').style.display = 'none';
+document.getElementById('errorSection').style.display = 'block';
+}
+}
+async function updateStatus(status) {
+try {
+const collection = isTestMode ? 'bookings-test' : 'bookings';
+await db.collection(collection).doc(bookingId).update({ status: status })
+document.getElementById('messageSection').innerHTML = `
+<div>✅ Status updated to: <strong>${status.toUpperCase()}</strong></d
+`;
+// Refresh
+setTimeout(() =&gt; location.reload(), 1500);
+} catch (error) {
+document.getElementById('messageSection').innerHTML = `
+<div>❌ Error: ${error.message}</div>
+`;
+}
+}
+async function cancelJob() {
+if (confirm('Are you sure you want to cancel this job?')) {
+await updateStatus('cancelled');
+}
+}
+loadJob();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;

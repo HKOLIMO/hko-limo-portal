@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Portal - HKO LIMO</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        
+        /* Login Screen */
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; width: 90%; }
+        .login-box h1 { color: #667eea; font-size: 28px; margin-bottom: 10px; text-align: center; }
+        .login-box p { color: #666; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        .form-group input:focus { outline: none; border-color: #667eea; }
+        button { padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+        .error { color: #e74c3c; font-size: 14px; margin-top: 10px; }
+        .success { color: #27ae60; font-size: 14px; margin-top: 10px; }
+        
+        /* Portal */
+        .portal { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .portal.active { display: block; }
+        .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { color: #667eea; margin: 0; }
+        .header-info { text-align: right; }
+        .header-info p { color: #666; margin: 5px 0; font-size: 14px; }
+        .header button { width: auto; padding: 10px 20px; }
+        
+        /* Tabs */
+        .tabs { background: white; border-radius: 10px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .tab-buttons { display: flex; border-bottom: 2px solid #f0f0f0; background: #f8f9ff; }
+        .tab-btn { flex: 1; padding: 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #666; transition: all 0.3s; text-align: center; }
+        .tab-btn.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+        .tab-btn:hover { background: white; }
+        .tab-content { display: none; padding: 30px; }
+        .tab-content.active { display: block; }
+        
+        /* Forms */
+        .booking-form { background: white; padding: 30px; border-radius: 10px; }
+        .booking-form h2 { margin-bottom: 20px; color: #333; font-size: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; }
+        
+        /* Price Display */
+        .price-display { background: #f8f9ff; padding: 15px; border-radius: 6px; margin: 20px 0; border: 2px solid #e0e0e0; }
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .price-row.total { border-top: 2px solid #e0e0e0; padding-top: 10px; font-weight: 600; font-size: 16px; color: #667eea; }
+        .submit-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 20px; }
+        
+        /* Bookings List */
+        .bookings-list { background: white; padding: 30px; border-radius: 10px; }
+        .bookings-list h2 { margin-bottom: 20px; color: #333; font-size: 20px; }
+        .booking-card { background: #f8f9ff; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #667eea; }
+        .booking-card h3 { color: #333; margin-bottom: 10px; font-size: 16px; }
+        .booking-details { font-size: 14px; color: #666; line-height: 1.6; }
+        .booking-details p { margin-bottom: 6px; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+        
+        /* Actions */
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .actions button { padding: 6px 12px; font-size: 12px; width: auto; }
+        .btn-edit { background: #17a2b8; }
+        .btn-delete { background: #e74c3c; }
+        .btn-send { background: #27ae60; }
+        
+        /* Info Box */
+        .info-box { background: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 6px; margin-bottom: 20px; color: #1565c0; font-size: 14px; }
+        
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .header-info { text-align: left; width: 100%; }
+            .tab-buttons { flex-wrap: wrap; }
+            .tab-btn { font-size: 12px; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <h1>🚗 HKO LIMO</h1>
+            <p>Manager Portal</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" style="width: 100%;">Login</button>
+                <div id="loginError" class="error"></div>
+                <div id="loginSuccess" class="success"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Portal -->
+    <div id="portal" class="portal">
+        <div class="header">
+            <div>
+                <h1>🚗 HKO LIMO Manager Portal</h1>
+            </div>
+            <div class="header-info">
+                <p id="managerName">Welcome, Manager!</p>
+                <p id="companyName">Company: Loading...</p>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('my-bookings', this)">📋 My Bookings</button>
+                <button class="tab-btn" onclick="switchTab('create-booking', this)">➕ New Booking</button>
+            </div>
+
+            <!-- My Bookings Tab -->
+            <div id="my-bookings" class="tab-content active">
+                <div class="bookings-list">
+                    <h2>Company Bookings</h2>
+                    <p style="color: #666; margin-bottom: 20px;">All bookings made by your company</p>
+                    <div id="bookingsList" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Create Booking Tab -->
+            <div id="create-booking" class="tab-content">
+                <div class="booking-form">
+                    <h2>Create New Booking</h2>
+                    
+                    <div class="info-box">
+                        <strong>💡 Pricing Information:</strong>
+                        Your company's custom pricing will be applied automatically.
+                    </div>
+
+                    <form id="bookingForm">
+                        <!-- Guest Information -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #333;">👥 Guest Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Guest Full Name *</label>
+                                <input type="text" id="fullName" required placeholder="Guest's name">
+                            </div>
+                            <div class="form-group">
+                                <label>Guest Phone *</label>
+                                <input type="tel" id="phone" required placeholder="Guest's phone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Guest Email *</label>
+                            <input type="email" id="email" required placeholder="Guest's email">
+                        </div>
+
+                        <!-- Service Details -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #333;">🎫 Service Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Service Type *</label>
+                                <select id="serviceType" required onchange="calculatePrice()">
+                                    <option value="">-- Select Service --</option>
+                                    <option value="airport-arrival">Airport Arrival - Meet & Greet</option>
+                                    <option value="airport-departure">Airport Departure & Transfers</option>
+                                    <option value="hourly">Hourly Booking (Min 3 hours)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Vehicle Type *</label>
+                                <select id="vehicleType" required onchange="calculatePrice()">
+                                    <option value="">-- Select Vehicle --</option>
+                                    <option value="s-class">Mercedes S-Class</option>
+                                    <option value="v-class">Mercedes V-Class (7-seater)</option>
+                                    <option value="alphard">Toyota Alphard/Vellfire (7-seater)</option>
+                                    <option value="hiace">Toyota Hiace (13-seater)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Location Details -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #333;">📍 Location Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Pickup Location *</label>
+                                <input type="text" id="pickupLocation" required placeholder="e.g., Hong Kong Airport Terminal 1">
+                            </div>
+                            <div class="form-group">
+                                <label>Dropoff Location *</label>
+                                <input type="text" id="dropoffLocation" required placeholder="e.g., Hotel Name, Address">
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #333;">⏰ Date & Time</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Pickup Date *</label>
+                                <input type="date" id="pickupDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Pickup Time *</label>
+                                <input type="time" id="pickupTime" required onchange="calculatePrice()">
+                            </div>
+                        </div>
+
+                        <!-- Hourly Section -->
+                        <div id="hourlySection" style="display: none;">
+                            <div class="form-group">
+                                <label>Number of Hours (Minimum 3) *</label>
+                                <input type="number" id="numHours" min="3" placeholder="Enter hours" onchange="calculatePrice()">
+                            </div>
+                        </div>
+
+                        <!-- Special Requests -->
+                        <h3 style="margin-top: 30px; margin-bottom: 20px; color: #333;">💬 Special Requests</h3>
+                        <div class="form-group">
+                            <label>Additional Notes (Optional)</label>
+                            <textarea id="specialRequests" placeholder="Any special requests? (wheelchair access, car seat, etc.)" style="height: 100px;"></textarea>
+                        </div>
+
+                        <!-- Price Display -->
+                        <div class="price-display">
+                            <div class="price-row">
+                                <span>Base Fare:</span>
+                                <span id="baseFare">$0</span>
+                            </div>
+                            <div id="midnightChargeRow" class="price-row" style="display: none;">
+                                <span>Midnight Charge (+):</span>
+                                <span id="midnightChargeAmount">$0</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Estimated Total:</span>
+                                <span id="totalPrice">$0</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Create Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy7z9suF_bpLI7pW4X9ofsZpfmEMc7Eeo",
+            authDomain: "hkolimo-firebase.firebaseapp.com",
+            projectId: "hkolimo-firebase",
+            storageBucket: "hkolimo-firebase.firebasestorage.app",
+            messagingSenderId: "1012271101382",
+            appId: "1:1012271101382:web:fc922a415deadf277a2ec7"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // Pricing - Will be overridden by company pricing
+        const pricingRates = {
+            'airport-arrival': { 's-class': 180, 'v-class': 95, 'alphard': 95, 'hiace': 100 },
+            'airport-departure': { 's-class': 170, 'v-class': 80, 'alphard': 80, 'hiace': 90 },
+            'hourly': { 's-class': 160, 'v-class': 75, 'alphard': 75, 'hiace': 85 }
+        };
+
+        const midnightCharges = {
+            's-class': 50,
+            'v-class': 20,
+            'alphard': 20,
+            'hiace': 20
+        };
+
+        let currentUser = null;
+        let currentCompany = null;
+
+        // LOGIN
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const successDiv = document.getElementById('loginSuccess');
+
+            db.collection('users').where('email', '==', email).limit(1).get()
+                .then(snapshot => {
+                    if (snapshot.empty) {
+                        errorDiv.textContent = 'User not found';
+                        return;
+                    }
+
+                    const user = snapshot.docs;
+                    const userData = user.data();
+
+                    if (userData.password !== password) {
+                        errorDiv.textContent = 'Incorrect password';
+                        return;
+                    }
+
+                    if (userData.role !== 'manager') {
+                        errorDiv.textContent = 'Access denied. Manager account required.';
+                        return;
+                    }
+
+                    currentUser = { id: user.id, ...userData };
+                    successDiv.textContent = 'Login successful!';
+                    errorDiv.textContent = '';
+
+                    setTimeout(() => {
+                        document.getElementById('loginContainer').style.display = 'none';
+                        document.getElementById('portal').classList.add('active');
+                        document.getElementById('managerName').textContent = `Welcome, ${currentUser.name}!`;
+                        
+                        // Load company info
+                        loadCompanyInfo();
+                        loadBookings();
+                    }, 500);
+                })
+                .catch(error => {
+                    errorDiv.textContent = 'Error: ' + error.message;
+                });
+        });
+
+        // Load Company Info
+        function loadCompanyInfo() {
+            if (!currentUser || !currentUser.companyId) return;
+
+            db.collection('companies').doc(currentUser.companyId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        currentCompany = { id: doc.id, ...doc.data() };
+                        document.getElementById('companyName').textContent = `Company: ${currentCompany.name}`;
+                    }
+                })
+                .catch(error => console.error('Error loading company:', error));
+        }
+
+        // LOGOUT
+        function logout() {
+            currentUser = null;
+            currentCompany = null;
+            document.getElementById('portal').classList.remove('active');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('loginSuccess').textContent = '';
+        }
+
+        // Switch Tabs
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Midnight Detection
+        function isMidnightHour(timeString) {
+            if (!timeString) return false;
+            const [hours, minutes] = timeString.split(':').map(Number);
+            const timeInMinutes = hours * 60 + minutes;
+            return timeInMinutes >= 1380 || timeInMinutes < 420;
+        }
+
+        // Calculate Price
+        function calculatePrice() {
+            const serviceType = document.getElementById('serviceType').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const pickupTime = document.getElementById('pickupTime').value;
+            const hourlySection = document.getElementById('hourlySection');
+            const numHours = document.getElementById('numHours').value;
+
+            if (serviceType === 'hourly') {
+                hourlySection.style.display = 'block';
+            } else {
+                hourlySection.style.display = 'none';
+            }
+
+            if (!serviceType || !vehicleType) {
+                document.getElementById('baseFare').textContent = '$0';
+                document.getElementById('totalPrice').textContent = '$0';
+                document.getElementById('midnightChargeRow').style.display = 'none';
+                return;
+            }
+
+            // Use company pricing if available, otherwise use default
+            const rates = currentCompany && currentCompany.pricing ? currentCompany.pricing : pricingRates;
+
+            let baseFare = 0;
+            if (serviceType === 'hourly') {
+                if (!numHours || numHours < 3) {
+                    document.getElementById('baseFare').textContent = '$0';
+                    document.getElementById('totalPrice').textContent = '$0';
+                    return;
+                }
+                baseFare = rates[serviceType][vehicleType] * numHours;
+            } else {
+                baseFare = rates[serviceType][vehicleType];
+            }
+
+            const isMidnight = isMidnightHour(pickupTime);
+            let midnightCharge = 0;
+            if (isMidnight) {
+                midnightCharge = midnightCharges[vehicleType];
+            }
+
+            document.getElementById('baseFare').textContent = `$${baseFare.toFixed(2)}`;
+
+            if (midnightCharge > 0) {
+                document.getElementById('midnightChargeRow').style.display = 'flex';
+                document.getElementById('midnightChargeAmount').textContent = `$${midnightCharge.toFixed(2)}`;
+            } else {
+                document.getElementById('midnightChargeRow').style.display = 'none';
+            }
+
+            const totalPrice = baseFare + midnightCharge;
+            document.getElementById('totalPrice').textContent = `$${totalPrice.toFixed(2)}`;
+        }
+
+        // Create Booking
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('You must be logged in to create a booking');
+                return;
+            }
+
+            const bookingData = {
+                source: 'manager',                          // ← IMPORTANT
+                createdByCompanyId: currentUser.companyId,  // ← IMPORTANT
+                createdByManagerId: currentUser.id,
+                createdByManagerEmail: currentUser.email,
+                createdByManagerName: currentUser.name,
+                
+                guestName: document.getElementById('fullName').value,
+                guestEmail: document.getElementById('email').value,
+                guestPhone: document.getElementById('phone').value,
+                
+                serviceType: document.getElementById('serviceType').value,
+                vehicleType: document.getElementById('vehicleType').value,
+                pickupLocation: document.getElementById('pickupLocation').value,
+                dropoffLocation: document.getElementById('dropoffLocation').value,
+                pickupDate: document.getElementById('pickupDate').value,
+                pickupTime: document.getElementById('pickupTime').value,
+                specialRequests: document.getElementById('specialRequests').value || 'None',
+                
+                totalPrice: document.getElementById('totalPrice').textContent.replace('$', ''),
+                status: 'pending',
+                driverId: null,
+                driverName: null,
+                trackingLink: null,
+                createdAt: new Date()
+            };
+
+            db.collection('bookings').add(bookingData)
+                .then(docRef => {
+                    alert('✅ Booking created successfully!\nBooking ID: ' + docRef.id);
+                    document.getElementById('bookingForm').reset();
+                    calculatePrice();
+                    loadBookings();
+                })
+                .catch(error => {
+                    alert('❌ Error creating booking:\n' + error.message);
+                });
+        });
+
+        // Load Bookings
+        function loadBookings() {
+            if (!currentUser) return;
+
+            const bookingsList = document.getElementById('bookingsList');
+            db.collection('bookings')
+                .where('createdByCompanyId', '==', currentUser.companyId)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    bookingsList.innerHTML = '';
+                    if (snapshot.empty) {
+                        bookingsList.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No bookings yet. Create your first booking now!</p>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const booking = doc.data();
+                        const bookingCard = document.createElement('div');
+                        bookingCard.className = 'booking-card';
+                        const createdDate = booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleDateString() : 'N/A';
+                        
+                        bookingCard.innerHTML = `
+                            <h3>Booking #${doc.id.substring(0, 8).toUpperCase()}</h3>
+                            <div class="booking-details">
+                                <p><strong>Guest:</strong> ${booking.guestName}</p>
+                                <p><strong>Guest Email:</strong> ${booking.guestEmail}</p>
+                                <p><strong>Guest Phone:</strong> ${booking.guestPhone}</p>
+                                <p><strong>Service:</strong> ${booking.serviceType.replace('-', ' ').toUpperCase()}</p>
+                                <p><strong>Vehicle:</strong> ${booking.vehicleType.toUpperCase()}</p>
+                                <p><strong>Pickup:</strong> ${booking.pickupLocation}</p>
+                                <p><strong>Dropoff:</strong> ${booking.dropoffLocation}</p>
+                                <p><strong>Scheduled:</strong> ${booking.pickupDate} at ${booking.pickupTime}</p>
+                                <p><strong>Total Price:</strong> $${booking.totalPrice}</p>
+                                ${booking.driverName ? `<p><strong>Assigned Driver:</strong> ${booking.driverName}</p>` : '<p><strong>Assigned Driver:</strong> Not yet assigned</p>'}
+                                <p><strong>Booked on:</strong> ${createdDate}</p>
+                                <span class="status-badge status-${booking.status}">${booking.status.toUpperCase()}</span>
+                            </div>
+                        `;
+                        bookingsList.appendChild(bookingCard);
+                    });
+                }, error => {
+                    console.error('Error loading bookings:', error);
+                    bookingsList.innerHTML = '<p class="error">Error loading bookings. Please refresh the page.</p>';
+                });
+        }
+
+        // Set min date to today
+        const today = new Date().toISOString().split('T');
+        document.getElementById('pickupDate').setAttribute('min', today);
+    </script>
+</body>
+</html>

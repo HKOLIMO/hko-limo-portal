@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Ride - HKO LIMO TEST</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .price-display {
+            background: #f8f9ff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .price-row.total {
+            border-top: 2px solid #e0e0e0;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .payment-section {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .payment-section.show {
+            display: block;
+        }
+
+        .payment-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .test-card-info {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .payment-note {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #1565c0;
+        }
+
+        #card-element {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #card-errors {
+            color: #e74c3c;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-book {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-book:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-book:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #fadbd8;
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+
+        .message.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .pricing-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #856404;
+            margin-top: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="test-badge">🧪 TEST MODE - DEMO DATA</div>
+            <h1>🚗 HKO Limo</h1>
+            <p>Test Booking - For Demo Purposes Only</p>
+        </div>
+
+        <form id="bookingForm">
+            <!-- Passenger Information -->
+            <div class="form-section">
+                <div class="section-title">👤 Passenger Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="fullName" required placeholder="e.g. Test Guest" value="Test Guest">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="phone" required placeholder="e.g. +65 1234 5678" value="+65 9999 8888">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="email" required placeholder="e.g. test@hkolimo.com" value="test@hkolimo.com">
+                </div>
+            </div>
+
+            <!-- Service Details -->
+            <div class="form-section">
+                <div class="section-title">🎫 Service Details</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Service Type *</label>
+                        <select id="serviceType" required onchange="calculatePrice()">
+                            <option value="">-- Select Service --</option>
+                            <option value="airport-arrival" selected>Airport Arrival - Meet & Greet</option>
+                            <option value="airport-departure">Airport Departure & Transfers</option>
+                            <option value="hourly">Hourly Booking (Min 3 hours)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Type *</label>
+                        <select id="vehicleType" required onchange="calculatePrice()">
+                            <option value="">-- Select Vehicle --</option>
+                            <option value="s-class" selected>Mercedes S-Class</option>
+                            <option value="v-class">Mercedes V-Class (7-seater)</option>
+                            <option value="alphard">Toyota Alphard/Vellfire (7-seater)</option>
+                            <option value="hiace">Toyota Hiace (13-seater)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Details -->
+            <div class="form-section">
+                <div class="section-title">📍 Location Details</div>
+                <div class="form-group">
+                    <label>Pickup Location *</label>
+                    <select id="pickupLocation" required>
+                        <option value="">-- Select Location --</option>
+                        <option value="Singapore Changi Airport Terminal 1" selected>Singapore Changi Airport Terminal 1</option>
+                        <option value="Singapore Changi Airport Terminal 2">Singapore Changi Airport Terminal 2</option>
+                        <option value="Singapore Changi Airport Terminal 3">Singapore Changi Airport Terminal 3</option>
+                        <option value="Singapore Changi Airport Terminal 4">Singapore Changi Airport Terminal 4</option>
+                        <option value="Custom Location">Custom Location</option>
+                    </select>
+                </div>
+                <div class="form-group" id="customLocationGroup" style="display: none;">
+                    <label>Enter Custom Pickup Location *</label>
+                    <input type="text" id="customPickupLocation" placeholder="e.g. Marina Bay Sands">
+                </div>
+                <div class="form-group">
+                    <label>Dropoff Location *</label>
+                    <input type="text" id="dropoffLocation" required placeholder="e.g. Hotel Name, Address" value="Marina Bay Sands">
+                </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="form-section">
+                <div class="section-title">⏰ Date & Time</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pickup Date *</label>
+                        <input type="date" id="pickupDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Time *</label>
+                        <input type="time" id="pickupTime" required onchange="calculatePrice()" value="14:00">
+                    </div>
+                </div>
+                <div id="midnightWarning" class="pricing-info" style="display: none;">
+                    🌙 <strong>Midnight Charge Applied:</strong> 23:00 - 07:00 hrs
+                </div>
+            </div>
+
+            <!-- Hourly Details -->
+            <div id="hourlySection" class="form-section" style="display: none;">
+                <div class="section-title">⏱️ Hourly Booking Details</div>
+                <div class="form-group">
+                    <label>Number of Hours *</label>
+                    <input type="number" id="numHours" min="3" placeholder="Minimum 3 hours" onchange="calculatePrice()">
+                    <div class="pricing-info">Minimum 3 hours required. Charges per hour.</div>
+                </div>
+            </div>
+
+            <!-- Special Requests -->
+            <div class="form-section">
+                <div class="section-title">💬 Special Requests (Optional)</div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea id="notes" placeholder="Any special requirements?">Demo booking for testing</textarea>
+                </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="price-display">
+                <div class="price-row">
+                    <span>Base Fare:</span>
+                    <span id="baseFare">$0</span>
+                </div>
+                <div id="midnightCharge" class="price-row" style="display: none;">
+                    <span>Midnight Charge:</span>
+                    <span id="midnightChargeAmount">$0</span>
+                </div>
+                <div class="price-row total">
+                    <span>Total Amount (Due Now):</span>
+                    <span id="totalPrice">$0</span>
+                </div>
+                <div class="pricing-info" style="margin-top: 12px;">
+                    ✅ <strong>Full Payment at Booking:</strong> Any additional charges (wait time, extensions) will be calculated at trip end
+                </div>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="payment-section" id="paymentSection">
+                <h3>💳 Payment Details (TEST MODE)</h3>
+                <div class="test-card-info">
+                    <strong>Test Card:</strong> 4242 4242 4242 4242<br>
+                    Any future expiry date | Any 3-digit CVC
+                </div>
+                <div class="payment-note">
+                    📌 <strong>Full Payment Now:</strong> You will be charged the full amount shown above. Additional charges (if any) will be auto-charged after driver completes the trip.
+                </div>
+                <label>Card Information</label>
+                <div id="card-element"></div>
+                <div id="card-errors" role="alert"></div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+
+            <!-- Message Display -->
+            <div class="message" id="message"></div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="reset" class="btn-reset">Clear</button>
+                <button type="submit" class="btn-book" id="submitBtn">Pay Now (Test)</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // STRIPE CONFIGURATION - TEST KEYS
+        const stripe = Stripe('pk_test_51SCj43L50cwAWABSBaIu3u1vxSnWdVPs5u5sSvTtJY7RDKYB1h9e6C7fVSOchf7LDbsCB1yWmpLyIXBHojOo41vh00ytl3dTRK');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+
+        // CORRECTED PRICING RATES
+        const pricingRates = {
+            'airport-arrival': { 
+                's-class': 180, 
+                'v-class': 95, 
+                'alphard': 95, 
+                'hiace': 100 
+            },
+            'airport-departure': { 
+                's-class': 170, 
+                'v-class': 80, 
+                'alphard': 80, 
+                'hiace': 90 
+            },
+            'hourly': { 
+                's-class': 160, 
+                'v-class': 75, 
+                'alphard': 75, 
+                'hiace': 85 
+            }
+        };
+
+        // CORRECTED MIDNIGHT CHARGES
+        const midnightCharges = {
+            's-class': 50,
+            'v-class': 20,
+            'alphard': 20,
+            'hiace': 20
+        };
+
+        // Initialize Stripe card element
+        document.addEventListener('DOMContentLoaded', function() {
+            cardElement.mount('#card-element');
+            cardElement.addEventListener('change', displayError);
+            
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pickupDate').setAttribute('min', today);
+            document.getElementById('pickupDate').value = today;
+            
+            // Calculate price on load
+            calculatePrice();
+        });
+
+        function displayError(event) {
+            const errorDiv = document.getElementById('card-errors');
+            if (event.error) {
+                errorDiv.textContent = event.error.message;
+            } else {
+                errorDiv.textContent = '';
+            }
+        }
+
+        // Handle custom location
+        document.getElementById('pickupLocation').addEventListener('change', function() {
+            const customLocationGroup = document.getElementById('customLocationGroup');
+            if (this.value === 'Custom Location') {
+                customLocationGroup.style.display = 'block';
+            } else {
+                customLocationGroup.style.display = 'none';
+            }
+        });
+
+        function isMidnightHour(timeString) {
+            if (!timeString) return false;
+            const [hours, minutes] = timeString.split(':').map(Number);
+            const timeInMinutes = hours * 60 + minutes;
+            return timeInMinutes >= 1380 || timeInMinutes < 420;
+        }
+
+        function calculatePrice() {
+            const serviceType = document.getElementById('serviceType').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const pickupTime = document.getElementById('pickupTime').value;
+            const hourlySection = document.getElementById('hourlySection');
+            const numHours = document.getElementById('numHours').value;
+            const paymentSection = document.getElementById('paymentSection');
+
+            if (serviceType === 'hourly') {
+                hourlySection.style.display = 'block';
+            } else {
+                hourlySection.style.display = 'none';
+            }
+
+            if (serviceType && vehicleType) {
+                paymentSection.classList.add('show');
+            } else {
+                paymentSection.classList.remove('show');
+            }
+
+            if (!serviceType || !vehicleType) {
+                document.getElementById('baseFare').textContent = '$0';
+                document.getElementById('totalPrice').textContent = '$0';
+                document.getElementById('midnightCharge').style.display = 'none';
+                document.getElementById('midnightWarning').style.display = 'none';
+                return;
+            }
+
+            let baseFare = 0;
+            if (serviceType === 'hourly') {
+                if (!numHours || numHours < 3) {
+                    document.getElementById('baseFare').textContent = '$0';
+                    document.getElementById('totalPrice').textContent = '$0';
+                    return;
+                }
+                baseFare = pricingRates[serviceType][vehicleType] * numHours;
+            } else {
+                baseFare = pricingRates[serviceType]?.[vehicleType] || 0;
+            }
+
+            const isMidnight = isMidnightHour(pickupTime);
+            let midnightCharge = 0;
+            if (isMidnight) {
+                midnightCharge = midnightCharges[vehicleType] || 0;
+            }
+
+            document.getElementById('baseFare').textContent = `$${baseFare.toFixed(2)}`;
+            
+            if (midnightCharge > 0) {
+                document.getElementById('midnightCharge').style.display = 'flex';
+                document.getElementById('midnightChargeAmount').textContent = `$${midnightCharge.toFixed(2)}`;
+                document.getElementById('midnightWarning').style.display = 'block';
+            } else {
+                document.getElementById('midnightCharge').style.display = 'none';
+                document.getElementById('midnightWarning').style.display = 'none';
+            }
+
+            const totalPrice = baseFare + midnightCharge;
+            document.getElementById('totalPrice').textContent = `$${totalPrice.toFixed(2)}`;
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const serviceType = document.getElementById('serviceType').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const pickupLocation = document.getElementById('pickupLocation').value;
+            const customPickupLocation = document.getElementById('customPickupLocation').value;
+            const dropoffLocation = document.getElementById('dropoffLocation').value;
+            const pickupDate = document.getElementById('pickupDate').value;
+            const pickupTime = document.getElementById('pickupTime').value;
+            const totalPrice = parseFloat(document.getElementById('totalPrice').textContent.replace('$', ''));
+
+            if (!fullName || !phone || !email || !serviceType || !vehicleType || !dropoffLocation || !pickupDate || !pickupTime) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (pickupLocation === 'Custom Location' && !customPickupLocation) {
+                showMessage('Please enter custom pickup location', 'error');
+                return;
+            }
+
+            const finalPickupLocation = pickupLocation === 'Custom Location' ? customPickupLocation : pickupLocation;
+
+            document.getElementById('loadingIndicator').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                const response = await fetch('/.netlify/functions/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: Math.round(totalPrice * 100),
+                        email: email,
+                        fullName: fullName,
+                        phone: phone,
+                        serviceType: serviceType,
+                        vehicleType: vehicleType,
+                        pickupLocation: finalPickupLocation,
+                        dropoffLocation: dropoffLocation,
+                        pickupDate: pickupDate,
+                        pickupTime: pickupTime,
+                        notes: document.getElementById('notes').value,
+                        isTestMode: true
+                    })
+                });
+
+                const { clientSecret } = await response.json();
+
+                const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: fullName,
+                            email: email,
+                            phone: phone
+                        }
+                    }
+                });
+
+                document.getElementById('loadingIndicator').classList.remove('show');
+
+                if (error) {
+                    showMessage(`Payment failed: ${error.message}`, 'error');
+                    document.getElementById('submitBtn').disabled = false;
+                } else if (paymentIntent.status === 'succeeded') {
+                    showMessage('✅ TEST Payment successful! Booking confirmed. Check your email for booking details.', 'success');
+                    this.reset();
+                    calculatePrice();
+                    setTimeout(() => {
+                        window.location.href = '/payment-success.html?bookingId=' + paymentIntent.id + '&test=true';
+                    }, 2000);
+                }
+            } catch (error) {
+                document.getElementById('loadingIndicator').classList.remove('show');
+                showMessage(`Error: ${error.message}`, 'error');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message show ${type}`;
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

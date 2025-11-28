@@ -1,0 +1,28 @@
+# HKO LIMO - URL Routing Configuration
+# Valid _redirects file for Netlify
+# Comments use # not /* */
+
+# Root - Show booking widget on homepage
+/                                   /index-v2.html                    200
+
+# Booking routes
+/book                               /index-v2.html                    200
+/booking                            /index-v2.html                    200
+
+# Login routes
+/login                              /login-v2.html                    200
+/signin                             /login-v2.html                    200
+
+# Dashboard routes
+/dashboard                          /login-v2.html                    200
+/dashboard/client                   /client-dashboard-v2.html         200
+/dashboard/admin                    /admin-dashboard-v2.html          200
+/dashboard/driver                   /driver-dashboard-v2.html         200
+
+# Redirect old paths to login
+/admin                              /login-v2.html                    200
+/driver                             /login-v2.html                    200
+/client                             /login-v2.html                    200
+
+# Catch all - return booking widget for any unmatched route
+/*                                  /index-v2.html                    200

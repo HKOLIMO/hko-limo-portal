@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Cancelled - HKO LIMO</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+      color: #2d3748;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      padding: 60px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .cancel-icon {
+      width: 80px;
+      height: 80px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 40px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      color: #718096;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .alert {
+      background: #fecaca;
+      border-left: 4px solid #ef4444;
+      padding: 20px;
+      margin: 30px 0;
+      border-radius: 8px;
+      color: #7f1d1d;
+      text-align: left;
+    }
+
+    .alert h3 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .alert ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .alert li {
+      padding: 5px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .alert li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #3182ce;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: #2c5aa0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(49, 130, 206, 0.3);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #2d3748;
+      flex: 1;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e0;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 40px 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="cancel-icon">✕</div>
+    
+    <h1>Payment Cancelled</h1>
+    <p class="message">Your payment was not processed. No charges have been made to your card.</p>
+
+    <div class="alert">
+      <h3>⚠️ What Went Wrong?</h3>
+      <ul>
+        <li>You cancelled the payment</li>
+        <li>Payment method was declined</li>
+        <li>Session timed out</li>
+        <li>Technical issue occurred</li>
+      </ul>
+    </div>
+
+    <p style="color: #718096; margin: 20px 0;">
+      You can try again anytime. All your information will be saved.
+    </p>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="window.location.href='/'">Back Home</button>
+      <button class="btn btn-primary" onclick="window.location.href='/booking.html'">Try Again</button>
+    </div>
+
+    <p style="color: #718096; font-size: 0.9rem; margin-top: 30px;">
+      Need help? Contact support@hkolimo.com
+    </p>
+  </div>
+</body>
+</html>

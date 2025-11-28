@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Job - HKO LIMO</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .job-status {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .job-status.in-progress {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .job-status.completed {
+            background: #e1f5fe;
+            border-color: #2196f3;
+        }
+
+        .status-text {
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .passenger-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #999;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .trip-info-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #856404;
+            margin-top: 15px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-start {
+            background: #4caf50;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-end {
+            background: #f44336;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-end:hover:not(:disabled) {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .charge-breakdown {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .charge-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .charge-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .charge-row.total {
+            border-top: 2px solid #667eea;
+            padding-top: 12px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .charge-row.zero-charge {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .charge-label {
+            color: #666;
+        }
+
+        .charge-amount {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .admin-controls {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #1565c0;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-confirm {
+            background: #4caf50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .btn-waive {
+            background: #ff9800;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-waive:hover:not(:disabled) {
+            background: #f57c00;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            grid-column: 1 / -1;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .receipt {
+            display: none;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .receipt.show {
+            display: block;
+        }
+
+        .receipt-line {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .receipt-divider {
+            border-top: 1px solid #ddd;
+            margin: 12px 0;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Driver Job</h1>
+            <p>HKO Limo - Trip Management</p>
+        </div>
+
+        <div class="job-status" id="jobStatus">
+            <div class="status-text">🔄 Ready to Start</div>
+        </div>
+
+        <!-- Passenger Information -->
+        <div class="section">
+            <div class="section-title">👤 Passenger Information</div>
+            <div class="passenger-info">
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value" id="passengerName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value" id="passengerPhone">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="passengerEmail">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trip Details -->
+        <div class="section">
+            <div class="section-title">🎫 Trip Details</div>
+            <div class="passenger-info">
+                <div class="info-row">
+                    <span class="info-label">Service:</span>
+                    <span class="info-value" id="serviceType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Vehicle:</span>
+                    <span class="info-value" id="vehicleType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Pickup Location:</span>
+                    <span class="info-value" id="pickupLocation">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dropoff Location:</span>
+                    <span class="info-value" id="dropoffLocation">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Pickup Time:</span>
+                    <span class="info-value" id="pickupTime">-</span>
+                </div>
+            </div>
+            <div class="trip-info-note">
+                ℹ️ <strong>Note:</strong> Trip timer is for admin/manager tracking only. Not visible to driver.
+            </div>
+        </div>
+
+        <!-- Pricing Information -->
+        <div class="section">
+            <div class="section-title">💰 Pricing</div>
+            <div class="passenger-info">
+                <div class="info-row">
+                    <span class="info-label">Upfront Amount (Paid):</span>
+                    <span class="info-value" id="upfrontAmount">$0</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Additional (If Any):</span>
+                    <span class="info-value" id="additionalAmount">$0</span>
+                </div>
+                <div class="info-row" style="border-top: 2px solid #e0e0e0; padding-top: 10px; margin-top: 10px;">
+                    <span class="info-label" style="font-weight: 700;">Total Trip Cost:</span>
+                    <span class="info-value" id="totalAmount">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button class="button btn-start" id="startBtn" onclick="startTrip()">🚗 Start Trip</button>
+            <button class="button btn-end" id="endBtn" onclick="endTrip()" disabled style="display: none;">✓ End Trip</button>
+            <button class="button btn-secondary" id="cancelBtn" onclick="cancelJob()">Cancel</button>
+        </div>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- End Trip Confirmation Modal -->
+    <div class="modal" id="endTripModal">
+        <div class="modal-content">
+            <div class="modal-title">🏁 End Trip - Charge Confirmation</div>
+            
+            <div class="charge-breakdown" id="chargeBreakdown">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div class="admin-controls" id="adminControls" style="display: none;">
+                🔒 <strong>Admin Controls:</strong> You can waive additional charges if needed.
+            </div>
+
+            <div class="loading" id="chargeLoading">
+                <div class="spinner"></div>
+                <p>Processing charge...</p>
+            </div>
+
+            <div class="receipt" id="receiptDisplay">
+                <!-- Populated after successful charge -->
+            </div>
+
+            <div class="modal-buttons" id="modalButtons">
+                <button class="btn-confirm" id="confirmChargeBtn" onclick="confirmCharge()">Confirm & Charge</button>
+                <button class="btn-waive" id="waiveChargeBtn" onclick="waiveCharge()" style="display: none;">Waive Charges (Admin)</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tripData = {
+            startTime: null,
+            elapsedSeconds: 0,
+            bookingId: null,
+            driverId: 'driver_001',
+            upfrontAmount: 0,
+            additionalCharges: 0,
+            waitTime: 0,
+            extensionTime: 0,
+            serviceType: '',
+            vehicleType: '',
+            chargesWaived: false
+        };
+
+        // CORRECTED WAIT TIME CHARGES (15-min blocks AFTER free wait)
+        const waitTimeCharges = {
+            's-class': 50,      // $50 per 15-min block
+            'v-class': 20,      // $20 per 15-min block
+            'alphard': 20,      // $20 per 15-min block
+            'hiace': 20         // $20 per 15-min block
+        };
+
+        // CORRECTED HOURLY RATES
+        const hourlyRates = {
+            's-class': 160,
+            'v-class': 75,
+            'alphard': 75,
+            'hiace': 85
+        };
+
+        // FREE WAIT TIME BY SERVICE TYPE
+        const FREE_WAIT_TIME = {
+            'airport-arrival': 45,      // 45 minutes free for Airport Arrival
+            'airport-departure': 15,    // 15 minutes free for Airport Departure & Transfers
+            'hourly': 0                 // 0 minutes free for Hourly (covered by 3-hour minimum)
+        };
+
+        function loadBookingData() {
+            const params = new URLSearchParams(window.location.search);
+            tripData.bookingId = params.get('bookingId');
+            
+            if (!tripData.bookingId) {
+                return;
+            }
+
+            // Load from Firebase or API (replace with actual implementation)
+            displayBookingData({
+                passengerName: 'John Doe',
+                passengerPhone: '+65 1234 5678',
+                passengerEmail: 'john@example.com',
+                serviceType: 'airport-arrival',
+                vehicleType: 's-class',
+                pickupLocation: 'Singapore Changi Airport Terminal 1',
+                dropoffLocation: 'Marina Bay Sands',
+                pickupTime: '14:00',
+                upfrontAmount: 180
+            });
+        }
+
+        function displayBookingData(data) {
+            document.getElementById('passengerName').textContent = data.passengerName;
+            document.getElementById('passengerPhone').textContent = data.passengerPhone;
+            document.getElementById('passengerEmail').textContent = data.passengerEmail;
+            document.getElementById('serviceType').textContent = formatServiceType(data.serviceType);
+            document.getElementById('vehicleType').textContent = formatVehicleType(data.vehicleType);
+            document.getElementById('pickupLocation').textContent = data.pickupLocation;
+            document.getElementById('dropoffLocation').textContent = data.dropoffLocation;
+            document.getElementById('pickupTime').textContent = data.pickupTime;
+            document.getElementById('upfrontAmount').textContent = `$${data.upfrontAmount}`;
+            document.getElementById('totalAmount').textContent = `$${data.upfrontAmount}`;
+            
+            tripData.upfrontAmount = data.upfrontAmount;
+            tripData.serviceType = data.serviceType;
+            tripData.vehicleType = data.vehicleType;
+        }
+
+        function formatServiceType(type) {
+            const map = {
+                'airport-arrival': 'Airport Arrival - Meet & Greet',
+                'airport-departure': 'Airport Departure & Transfers',
+                'hourly': 'Hourly Booking'
+            };
+            return map[type] || type;
+        }
+
+        function formatVehicleType(type) {
+            const map = {
+                's-class': 'Mercedes S-Class',
+                'v-class': 'Mercedes V-Class',
+                'alphard': 'Toyota Alphard/Vellfire',
+                'hiace': 'Toyota Hiace 13-Seater'
+            };
+            return map[type] || type;
+        }
+
+        function startTrip() {
+            tripData.startTime = Date.now();
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('endBtn').style.display = 'block';
+            document.getElementById('cancelBtn').disabled = true;
+            
+            const status = document.getElementById('jobStatus');
+            status.innerHTML = '<div class="status-text in-progress">▶️ Trip In Progress</div>';
+            status.classList.add('in-progress');
+        }
+
+        function endTrip() {
+            tripData.elapsedSeconds = Math.floor((Date.now() - tripData.startTime) / 1000);
+            calculateAdditionalCharges();
+            showEndTripModal();
+        }
+
+        function calculateAdditionalCharges() {
+            const elapsedMinutes = Math.floor(tripData.elapsedSeconds / 60);
+            tripData.additionalCharges = 0;
+
+            // Get free wait time for this service type
+            const freeWaitMinutes = FREE_WAIT_TIME[tripData.serviceType] || 0;
+
+            // CHARGED WAIT TIME: After free wait period, charged in 15-min blocks
+            if (elapsedMinutes > freeWaitMinutes) {
+                const chargedMinutes = elapsedMinutes - freeWaitMinutes;
+                const blocks = Math.ceil(chargedMinutes / 15);
+                tripData.waitTime = elapsedMinutes;
+                const chargePerBlock = waitTimeCharges[tripData.vehicleType] || 20;
+                tripData.additionalCharges = blocks * chargePerBlock;
+            } else {
+                tripData.waitTime = elapsedMinutes;
+            }
+
+            // For hourly bookings, calculate extension
+            if (tripData.serviceType === 'hourly') {
+                const bookedMinutes = 180; // 3 hours
+                if (elapsedMinutes > bookedMinutes) {
+                    const extensionMinutes = elapsedMinutes - bookedMinutes;
+                    tripData.extensionTime = extensionMinutes;
+                    const hourlyRate = hourlyRates[tripData.vehicleType] || 75;
+                    const extensionHours = extensionMinutes / 60;
+                    const extensionCost = Math.ceil(extensionHours * 100) / 100 * hourlyRate;
+                    tripData.additionalCharges += extensionCost;
+                }
+            }
+
+            document.getElementById('additionalAmount').textContent = `$${tripData.additionalCharges.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `$${(tripData.upfrontAmount + tripData.additionalCharges).toFixed(2)}`;
+        }
+
+        function showEndTripModal() {
+            const modal = document.getElementById('endTripModal');
+            const breakdown = document.getElementById('chargeBreakdown');
+
+            let breakdownHTML = `
+                <div class="charge-row">
+                    <span class="charge-label">Upfront (Already Paid):</span>
+                    <span class="charge-amount">$${tripData.upfrontAmount.toFixed(2)}</span>
+                </div>
+            `;
+
+            // Get free wait time
+            const freeWaitMinutes = FREE_WAIT_TIME[tripData.serviceType] || 0;
+
+            // Wait time charges (in 15-min blocks)
+            if (tripData.waitTime > freeWaitMinutes) {
+                const chargedMinutes = tripData.waitTime - freeWaitMinutes;
+                const blocks = Math.ceil(chargedMinutes / 15);
+                const chargePerBlock = waitTimeCharges[tripData.vehicleType] || 20;
+                const waitCharge = blocks * chargePerBlock;
+                breakdownHTML += `
+                    <div class="charge-row">
+                        <span class="charge-label">Wait Time (${blocks} × 15min blocks @ $${chargePerBlock}):</span>
+                        <span class="charge-amount">$${waitCharge.toFixed(2)}</span>
+                    </div>
+                `;
+            } else if (tripData.waitTime > 0) {
+                breakdownHTML += `
+                    <div class="charge-row">
+                        <span class="charge-label">Wait Time:</span>
+                        <span class="charge-amount">$0 (within free ${freeWaitMinutes}min)</span>
+                    </div>
+                `;
+            }
+
+            // Extension charges for hourly
+            if (tripData.extensionTime > 0) {
+                const extensionHours = (tripData.extensionTime / 60).toFixed(2);
+                const hourlyRate = hourlyRates[tripData.vehicleType] || 75;
+                const extensionCost = Math.ceil(extensionHours * 100) / 100 * hourlyRate;
+                breakdownHTML += `
+                    <div class="charge-row">
+                        <span class="charge-label">Extension (${extensionHours} hours @ $${hourlyRate}/hr):</span>
+                        <span class="charge-amount">$${extensionCost.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+
+            if (tripData.additionalCharges === 0) {
+                breakdownHTML += `
+                    <div class="charge-row zero-charge">
+                        <span class="charge-label">Additional Charges:</span>
+                        <span class="charge-amount">$0.00 ✓</span>
+                    </div>
+                `;
+            }
+
+            breakdownHTML += `
+                <div class="charge-row total">
+                    <span class="charge-label">Total to Charge Now:</span>
+                    <span class="charge-amount">$${tripData.additionalCharges.toFixed(2)}</span>
+                </div>
+            `;
+
+            breakdown.innerHTML = breakdownHTML;
+            
+            // Show admin controls if there are charges
+            if (tripData.additionalCharges > 0) {
+                document.getElementById('adminControls').style.display = 'block';
+                document.getElementById('waiveChargeBtn').style.display = 'block';
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('endTripModal').classList.remove('show');
+            document.getElementById('adminControls').style.display = 'none';
+            document.getElementById('waiveChargeBtn').style.display = 'none';
+        }
+
+        function confirmCharge() {
+            if (tripData.additionalCharges === 0) {
+                completeTrip();
+                return;
+            }
+
+            document.getElementById('chargeLoading').classList.add('show');
+            document.getElementById('modalButtons').style.display = 'none';
+
+            // Simulate charge processing
+            setTimeout(() => {
+                completeTrip();
+            }, 2000);
+        }
+
+        function waiveCharge() {
+            tripData.chargesWaived = true;
+            tripData.additionalCharges = 0;
+            
+            document.getElementById('chargeLoading').classList.add('show');
+            document.getElementById('modalButtons').style.display = 'none';
+
+            // Simulate processing
+            setTimeout(() => {
+                completeTrip();
+            }, 2000);
+        }
+
+        function completeTrip() {
+            document.getElementById('chargeLoading').classList.remove('show');
+            showReceipt();
+            
+            const status = document.getElementById('jobStatus');
+            status.innerHTML = '<div class="status-text completed">✅ Trip Completed</div>';
+            status.classList.remove('in-progress');
+            status.classList.add('completed');
+
+            document.getElementById('endBtn').disabled = true;
+            document.getElementById('startBtn').disabled = true;
+        }
+
+        function showReceipt() {
+            const receiptDisplay = document.getElementById('receiptDisplay');
+            const total = tripData.upfrontAmount + (tripData.chargesWaived ? 0 : tripData.additionalCharges);
+
+            let receiptHTML = `
+                <div class="receipt-line">═══════════════════════════════</div>
+                <div class="receipt-line">HKO LIMO - TRIP RECEIPT</div>
+                <div class="receipt-line">═══════════════════════════════</div>
+                <div class="receipt-line"></div>
+                <div class="receipt-line">Booking ID: ${tripData.bookingId}</div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-line">CHARGES:</div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-line">Upfront: $${tripData.upfrontAmount.toFixed(2)}</div>
+            `;
+
+            if (tripData.chargesWaived && tripData.additionalCharges > 0) {
+                receiptHTML += `<div class="receipt-line">Additional: WAIVED (was $${tripData.additionalCharges.toFixed(2)})</div>`;
+            } else if (tripData.additionalCharges > 0) {
+                receiptHTML += `<div class="receipt-line">Additional: $${tripData.additionalCharges.toFixed(2)}</div>`;
+            }
+
+            receiptHTML += `
+                <div class="receipt-divider"></div>
+                <div class="receipt-line">TOTAL: $${total.toFixed(2)}</div>
+                <div class="receipt-line">═══════════════════════════════</div>
+                <div class="receipt-line"></div>
+                <div class="receipt-line">✅ Trip Completed</div>
+                <div class="receipt-line">Thank you!</div>
+            `;
+
+            if (tripData.chargesWaived && tripData.additionalCharges > 0) {
+                receiptHTML += `<div class="receipt-line"></div><div class="receipt-line">⚠️  Charges Waived by Admin</div>`;
+            }
+
+            receiptDisplay.innerHTML = receiptHTML;
+            receiptDisplay.classList.add('show');
+        }
+
+        function cancelJob() {
+            if (confirm('Are you sure you want to cancel this job?')) {
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBookingData();
+        });
+    </script>
+</body>
+</html>

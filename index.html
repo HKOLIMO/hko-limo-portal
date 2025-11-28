@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HKO LIMO - Premium Limousine Service Singapore</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header/Navigation */
+    header {
+      background: linear-gradient(135deg, #0066cc 0%, #00c4cc 100%);
+      color: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .logo img {
+      height: 50px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 30px;
+      font-weight: 600;
+      transition: opacity 0.3s;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #0066cc 0%, #00c4cc 100%);
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      margin-bottom: 40px;
+      opacity: 0.95;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #0066cc;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+      background: #ff6b35;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #e55a2b;
+      transform: translateY(-2px);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 80px 20px;
+      background: #f9fafb;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 60px;
+      color: #1f2937;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #0066cc;
+    }
+
+    .feature-card p {
+      color: #6b7280;
+      line-height: 1.8;
+    }
+
+    /* Services Section */
+    .services {
+      padding: 80px 20px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .service-item {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      border-left: 4px solid #0066cc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .service-item h3 {
+      color: #0066cc;
+      margin-bottom: 10px;
+    }
+
+    .service-item p {
+      color: #6b7280;
+    }
+
+    /* CTA Section */
+    .cta {
+      background: linear-gradient(135deg, #0066cc 0%, #00c4cc 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    /* Footer */
+    footer {
+      background: #1f2937;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: #00c4cc;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .btn-group {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <img src="HKO-LOGO-2025-1200x628px.png" alt="HKO LIMO">
+      </div>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="/booking.html">Book Now</a>
+        <a href="/client-dashboard-v2.html">My Bookings</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>🚗 Premium Limousine Service</h1>
+      <p>Where Luxury Meets Service</p>
+      <p style="font-size: 1rem; opacity: 0.9;">Professional, reliable, and elegant transportation across Singapore</p>
+      <div class="btn-group">
+        <a href="/booking.html" class="btn btn-primary">📅 Book Your Ride</a>
+        <a href="/track-booking.html" class="btn btn-secondary">📍 Track Booking</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="services">
+    <div class="container">
+      <h2 class="section-title">Why Choose HKO LIMO?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Premium Fleet</h3>
+          <p>Latest model luxury vehicles including Mercedes S-Class, V-Class, and Toyota Alphard for ultimate comfort.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Professional Drivers</h3>
+          <p>Experienced, courteous drivers trained in hospitality and safety protocols.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3>Real-Time Tracking</h3>
+          <p>Live GPS tracking and instant status updates for peace of mind.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>Competitive Pricing</h3>
+          <p>Transparent, upfront pricing with no hidden charges.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Fully Insured</h3>
+          <p>Comprehensive insurance coverage for your safety and security.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Easy Booking</h3>
+          <p>Simple online booking with instant confirmation and email receipt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="services">
+    <div class="container">
+      <h2 class="section-title">Our Services</h2>
+      <div class="services-grid">
+        <div class="service-item">
+          <h3>✈️ Airport Transfers</h3>
+          <p>Arrive or depart with style. Meet & greet service available. We track your flight for timely pickups.</p>
+        </div>
+
+        <div class="service-item">
+          <h3>🏢 Corporate Travel</h3>
+          <p>Impress your clients with premium transport. Perfect for business meetings and events.</p>
+        </div>
+
+        <div class="service-item">
+          <h3>🎉 Special Events</h3>
+          <p>Weddings, galas, celebrations. Make your special day memorable with our luxury service.</p>
+        </div>
+
+        <div class="service-item">
+          <h3>⏰ Hourly Booking</h3>
+          <p>Half-day or full-day packages. Ideal for city tours and multiple destinations.</p>
+        </div>
+
+        <div class="service-item">
+          <h3>🚐 Group Transport</h3>
+          <p>13-seater option available for groups. Perfect for team outings.</p>
+        </div>
+
+        <div class="service-item">
+          <h3>🌙 24/7 Service</h3>
+          <p>Round-the-clock availability. Early morning flights or late-night events—we're here for you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Experience Premium Service?</h2>
+      <p>Book your ride now and enjoy the HKO LIMO difference</p>
+      <a href="/booking.html" class="btn btn-primary">Book Your Ride Today</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#services">Services</a>
+        <a href="/booking.html">Book</a>
+        <a href="/track-booking.html">Track</a>
+      </div>
+      <p>&copy; 2025 HKO LIMO. All rights reserved.</p>
+      <p style="font-size: 0.9rem; margin-top: 10px;">Singapore Premium Limousine Service</p>
+    </div>
+  </footer>
+
+  <script>
+    console.log("✅ HKO LIMO Homepage Loaded Successfully");
+  </script>
+</body>
+</html>

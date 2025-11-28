@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Success - HKO LIMO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .success-message h2 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #558b2f;
+            font-size: 14px;
+        }
+
+        .booking-details {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-group {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚗</div>
+            <h1>HKO LIMO</h1>
+            <p>Luxury Limousine Service</p>
+        </div>
+
+        <div class="content">
+            <div id="alertContainer"></div>
+
+            <div id="loadingSection" class="loading">
+                <div class="spinner"></div>
+                <p>Loading your booking details...</p>
+            </div>
+
+            <div id="mainContent" style="display: none;">
+                <div class="success-message">
+                    <h2>✅ Booking Confirmed!</h2>
+                    <p>Your reservation has been successfully processed. A driver will be assigned shortly.</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>📧 Email Confirmation Sent</strong>
+                    We've sent a confirmation email with your booking details to your registered email address. You'll also receive SMS updates about your driver's arrival.
+                </div>
+
+                <div class="booking-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Booking Reference</div>
+                        <div class="detail-value" id="bookingId">---</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Pickup Location</div>
+                        <div class="detail-value" id="pickupLocation">---</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Dropoff Location</div>
+                        <div class="detail-value" id="dropoffLocation">---</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Pickup Date & Time</div>
+                        <div class="detail-value" id="pickupTime">---</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Service Type</div>
+                        <div class="detail-value" id="serviceType">---</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Total Amount</div>
+                        <div class="detail-value" id="totalPrice">---</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/client-dashboard.html" class="btn btn-primary">
+                        📊 View My Dashboard
+                    </a>
+                    <a href="/booking.html" class="btn btn-secondary">
+                        🔄 New Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDy7z9suF_bpLI7pW4X9ofsZpfmEMc7Eeo",
+            authDomain: "hkolimo-firebase.firebaseapp.com",
+            projectId: "hkolimo-firebase",
+            storageBucket: "hkolimo-firebase.firebasestorage.app",
+            messagingSenderId: "1012271101382",
+            appId: "1:1012271101382:web:fc922a415deadf277a2ec7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Show alert
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+        }
+
+        // Get booking ID from URL
+        function getBookingIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('bookingId');
+        }
+
+        // Load booking details
+        function loadBookingDetails(bookingId) {
+            if (!bookingId) {
+                showAlert('❌ No booking ID found. Please check your booking link.', 'error');
+                document.getElementById('loadingSection').style.display = 'none';
+                return;
+            }
+
+            db.collection("bookings").doc(bookingId).get().then((doc) => {
+                if (doc.exists) {
+                    const booking = doc.data();
+                    populateBookingDetails(booking);
+                    document.getElementById('loadingSection').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                } else {
+                    showAlert('❌ Booking not found.', 'error');
+                    document.getElementById('loadingSection').style.display = 'none';
+                }
+            }).catch((error) => {
+                console.error("Error loading booking:", error);
+                showAlert('❌ Error loading booking: ' + error.message, 'error');
+                document.getElementById('loadingSection').style.display = 'none';
+            });
+        }
+
+        // Populate booking details on page
+        function populateBookingDetails(booking) {
+            document.getElementById('bookingId').textContent = booking.id || 'N/A';
+            document.getElementById('pickupLocation').textContent = booking.pickupLocation || 'N/A';
+            document.getElementById('dropoffLocation').textContent = booking.dropoffLocation || 'N/A';
+            document.getElementById('pickupTime').textContent = booking.pickupTime || 'N/A';
+            document.getElementById('serviceType').textContent = booking.serviceType || 'Point-to-Point';
+            document.getElementById('totalPrice').textContent = '$' + (booking.totalPrice || '0.00');
+        }
+
+        // Initialize page
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check authentication (optional for success page)
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    console.log("ℹ️ User not authenticated - showing public success page");
+                } else {
+                    console.log("✅ Authenticated user:", user.email);
+                }
+            });
+
+            // Load booking details from URL parameter
+            const bookingId = getBookingIdFromURL();
+            if (bookingId) {
+                loadBookingDetails(bookingId);
+            } else {
+                // Try to get from localStorage (fallback)
+                const storedBookingId = localStorage.getItem('lastBookingId');
+                if (storedBookingId) {
+                    loadBookingDetails(storedBookingId);
+                } else {
+                    showAlert('❌ No booking information available.', 'error');
+                    document.getElementById('loadingSection').style.display = 'none';
+                }
+            }
+        });
+
+        console.log("✅ Booking Success Page initialized");
+    </script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - HKO LIMO</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo img {
+      height: 60px;
+      margin-bottom: 10px;
+    }
+
+    .logo h1 {
+      color: #1f2937;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .logo p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #6b7280;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 20px 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .links a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .alert.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+
+    .alert.success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid #10b981;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 15px 0;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+
+      .logo h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <img src="HKO-LOGO-2025-1200x628px.png" alt="HKO LIMO" onerror="this.style.display='none'">
+      <h1>HKO LIMO</h1>
+      <p>Premium Limousine Service</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="form-section active">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="admin@hkolimo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" required>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="rememberMe">
+        <label for="rememberMe">Remember me</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="loginBtn">
+        <span id="loginText">Login</span>
+        <span id="loginLoading" style="display: none;">Logging in...</span>
+      </button>
+
+      <div class="links">
+        <a href="#" onclick="resetPassword(); return false;">Forgot password?</a>
+      </div>
+    </form>
+
+    <!-- Register Form -->
+    <form id="registerForm" class="form-section">
+      <div class="form-group">
+        <label>Account Type</label>
+        <select id="accountType" required>
+          <option value="">Select account type...</option>
+          <option value="corporate">Corporate Client</option>
+          <option value="driver">Driver</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="companyNameGroup" style="display: none;">
+        <label>Company Name</label>
+        <input type="text" id="companyName" placeholder="Your company name">
+      </div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="registerName" placeholder="John Smith" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="registerEmail" placeholder="you@company.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="registerPhone" placeholder="+65 9123 4567" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="registerPassword" placeholder="Min. 8 characters" required minlength="8">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword" placeholder="Re-enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="registerBtn">
+        <span id="registerText">Create Account</span>
+        <span id="registerLoading" style="display: none;">Creating account...</span>
+      </button>
+    </form>
+
+    <div class="divider">OR</div>
+
+    <div class="links">
+      <a href="/booking.html">Continue as Guest (Book Without Login)</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, auth } from "./firebase-init.js";
+    import { 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence
+    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    // Show/hide company name field based on account type
+    document.getElementById('accountType').addEventListener('change', (e) => {
+      const companyGroup = document.getElementById('companyNameGroup');
+      if (e.target.value === 'corporate') {
+        companyGroup.style.display = 'block';
+        document.getElementById('companyName').required = true;
+      } else {
+        companyGroup.style.display = 'none';
+        document.getElementById('companyName').required = false;
+      }
+    });
+
+    // Tab switching
+    window.switchTab = function(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+      
+      if (tab === 'login') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+      }
+      hideAlert();
+    };
+
+    // Login handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      document.getElementById('loginText').style.display = 'none';
+      document.getElementById('loginLoading').style.display = 'inline';
+
+      try {
+        // Set persistence
+        await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        
+        // Sign in
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Redirect based on email domain
+        if (email.includes('@hkolimo.com')) {
+          window.location.href = '/admin.html';
+        } else {
+          window.location.href = '/client-dashboard-v2.html';
+        }
+
+      } catch (error) {
+        let message = 'Login failed. Please check your credentials.';
+        
+        if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many failed attempts. Please try again later.';
+        }
+        
+        showAlert(message, 'error');
+        
+        btn.disabled = false;
+        document.getElementById('loginText').style.display = 'inline';
+        document.getElementById('loginLoading').style.display = 'none';
+      }
+    });
+
+    // Register handler
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const accountType = document.getElementById('accountType').value;
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const phone = document.getElementById('registerPhone').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const companyName = document.getElementById('companyName').value;
+
+      // Validation
+      if (!accountType) {
+        showAlert('Please select an account type', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match', 'error');
+        return;
+      }
+
+      if (password.length < 8) {
+        showAlert('Password must be at least 8 characters', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      document.getElementById('registerText').style.display = 'none';
+      document.getElementById('registerLoading').style.display = 'inline';
+
+      try {
+        // Create auth account
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Save user profile to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name: name,
+          email: email,
+          phone: phone,
+          accountType: accountType,
+          companyName: accountType === 'corporate' ? companyName : null,
+          createdAt: serverTimestamp(),
+          status: 'active'
+        });
+
+        showAlert('Account created successfully! Redirecting...', 'success');
+
+        // Redirect after 1 second
+        setTimeout(() => {
+          if (accountType === 'corporate') {
+            window.location.href = '/client-dashboard-v2.html';
+          } else {
+            window.location.href = '/login.html';
+          }
+        }, 1000);
+
+      } catch (error) {
+        let message = 'Registration failed. Please try again.';
+        
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'An account with this email already exists.';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password is too weak. Use at least 8 characters.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address format.';
+        }
+        
+        showAlert(message, 'error');
+        
+        btn.disabled = false;
+        document.getElementById('registerText').style.display = 'inline';
+        document.getElementById('registerLoading').style.display = 'none';
+      }
+    });
+
+    // Password reset
+    window.resetPassword = async function() {
+      const email = document.getElementById('loginEmail').value;
+      
+      if (!email) {
+        showAlert('Please enter your email address first', 'error');
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showAlert('Password reset email sent! Check your inbox.', 'success');
+      } catch (error) {
+        showAlert('Failed to send reset email. Please check your email address.', 'error');
+      }
+    };
+
+    function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.textContent = message;
+      alert.className = `alert ${type}`;
+      alert.style.display = 'block';
+
+      if (type === 'success') {
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    function hideAlert() {
+      document.getElementById('alert').style.display = 'none';
+    }
+
+    // Check if already logged in
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Already logged in, redirect
+        if (user.email.includes('@hkolimo.com')) {
+          window.location.href = '/admin.html';
+        } else {
+          window.location.href = '/client-dashboard-v2.html';
+        }
+      }
+    });
+
+    console.log('✅ Login page initialized');
+  </script>
+</body>
+</html>
